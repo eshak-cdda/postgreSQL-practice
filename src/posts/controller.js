@@ -1,4 +1,5 @@
 const pool = require("../../db");
+const { postQuery } = require("./quearys");
 // create post
 const createPost = (req, res) => {
   const { text, user_id } = req.body;
@@ -14,8 +15,9 @@ const createPost = (req, res) => {
   );
 };
 // get all posts
+
 const getAllPosts = (req, res) => {
-  pool.query("SELECT * FROM posts", (error, results) => {
+  pool.query(postQuery, (error, results) => {
     if (error) {
       throw error;
     }

@@ -13,13 +13,13 @@ const addMember = (req, res) => {
       const newID = parseInt(results.rows[0].id);
       const childIds = results.rows[0].child;
       const fatherId = parseInt(results.rows[0].father);
-      childIds && updatParant(newID, childIds);
-      // fatherId && updateChild()
-      res.status(201).send({ message: "Member added sucsesfully" });
+      childIds && updateFather(newID, childIds);
+      fatherId && updateChild(newID, fatherId);
+      res.status(201).send({ message: "Member added successfully" });
     }
   );
 };
-const updatParant = (newID, childIds = []) => {
+const updateFather = (newID, childIds = []) => {
   childIds.forEach((childId) => {
     pool.query(
       `UPDATE members SET father = $1 WHERE id = $2`,
@@ -32,7 +32,17 @@ const updatParant = (newID, childIds = []) => {
     );
   });
 };
-const updateChild = (fatherId, childIds = []) => {};
+const updateChild = (newID, fatherId) => {
+  pool.query(
+    `UPDATE members SET child = array_append(child, $1) WHERE id = $2`,
+    [newID, fatherId],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+    }
+  );
+};
 
 // update member
 const updateMember = (data) => {
@@ -45,7 +55,7 @@ const updateMember = (data) => {
       if (error) {
         throw error;
       }
-      res.status(200).send({ message: "Member updated sucsesfully" });
+      res.status(200).send({ message: "Member updated successfully" });
     }
   );
 };

@@ -54,9 +54,20 @@ const updateMember = (data) => {
 const getMembers = (req, res) => {
   pool.query(
     `SELECT 
-   *
-   FROM 
-  members`,
+    m2.id,
+    m2.first_name, 
+    m2.last_name,
+    json_agg(json_build_object(
+      'id', m1.id,
+      'first_name', m1.first_name,
+      'last_name', m1.last_name
+    )) as children
+  FROM 
+    members m1 
+  LEFT JOIN members m2 ON m2.id = m1.father
+  GROUP BY
+  m2.id
+  `,
     (error, results) => {
       if (error) {
         throw error;

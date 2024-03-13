@@ -1,4 +1,5 @@
 const pool = require("../../db");
+const { updateFather, updateChild } = require("./helper");
 
 // add member
 const addMember = (req, res) => {
@@ -16,30 +17,6 @@ const addMember = (req, res) => {
       childIds && updateFather(newID, childIds);
       fatherId && updateChild(newID, fatherId);
       res.status(201).send({ message: "Member added successfully" });
-    }
-  );
-};
-const updateFather = (newID, childIds = []) => {
-  childIds.forEach((childId) => {
-    pool.query(
-      `UPDATE members SET father = $1 WHERE id = $2`,
-      [newID, childId],
-      (error, results) => {
-        if (error) {
-          throw error;
-        }
-      }
-    );
-  });
-};
-const updateChild = (newID, fatherId) => {
-  pool.query(
-    `UPDATE members SET child = array_append(child, $1) WHERE id = $2`,
-    [newID, fatherId],
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
     }
   );
 };
@@ -71,7 +48,7 @@ const getMembers = (req, res) => {
       'id', m1.id,
       'first_name', m1.first_name,
       'last_name', m1.last_name
-    )) as children
+    )) as child
   FROM 
     members m1 
   LEFT JOIN members m2 ON m2.id = m1.father

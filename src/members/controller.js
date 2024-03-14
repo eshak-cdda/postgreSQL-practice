@@ -1,5 +1,6 @@
 const pool = require("../../db");
 const { updateFather, updateChild } = require("./helper");
+const { getAllMembers, getMemberOne } = require("./quearys");
 
 // add member
 const addMember = (req, res) => {
@@ -39,33 +40,27 @@ const updateMember = (data) => {
 
 // get all members
 const getMembers = (req, res) => {
-  pool.query(
-    `SELECT 
-    m2.id,
-    m2.first_name, 
-    m2.last_name,
-    json_agg(json_build_object(
-      'id', m1.id,
-      'first_name', m1.first_name,
-      'last_name', m1.last_name
-    )) as child
-  FROM 
-    members m1 
-  LEFT JOIN members m2 ON m2.id = m1.father
-  GROUP BY
-  m2.id
-  `,
-    (error, results) => {
-      if (error) {
-        throw error;
-      }
-      res.status(200).json(results.rows);
+  pool.query(getAllMembers, (error, results) => {
+    if (error) {
+      throw error;
     }
-  );
+    res.status(200).json(results.rows);
+  });
+};
+// get member by id
+const getMemberById = (req, res) => {
+  const id = parseInt(req.params.id);
+  pool.query(getMemberOne, [id], (error, results) => {
+    if (error) {
+      throw error;
+    }
+    res.status(200).json(results.rows);
+  });
 };
 
 module.exports = {
   addMember,
   updateMember,
   getMembers,
+  getMemberById,
 };
